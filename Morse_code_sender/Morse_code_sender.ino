@@ -3,26 +3,25 @@ String mCode = "";
 byte mCodeLength = 0;
 char i;String code = "";
 
-byte elemPause = 0;
-int timeUnitLength = 20;
-int inputPin = 2;
-int ledPin = 13;
-int led2 = 12;
+
+/******** USER SETTINGS ***********/
+int timeUnitLength = 300; //Speed of the morse time unit
+int inputPin = 2; // Input pin for the button (optional)
+int MorseLed = 12; // Morse sender LED
+int ControlLed = 13; // Feedback LED
 
 
 
 void setup() {
   pinMode(inputPin, INPUT_PULLUP);
-  pinMode(ledPin, OUTPUT);
-  pinMode(led2, OUTPUT);
+  pinMode(ControlLed, OUTPUT);
+  pinMode(MorseLed, OUTPUT);
 
   Serial.begin(9600);
   Serial.println("SHU Makerspace");
   Serial.println("Morse Sender");
   Serial.println("-----------------------");
   Serial.println("Sacred Heart University");
-  Serial.println("Author: Cedric Bleimling");
-  Serial.println("Licence CC NC SA");
   Serial.println("-----------------------");
   Serial.println("");
   delay(50);
@@ -31,26 +30,30 @@ void setup() {
 }
 
 void MorseDot(){
-  digitalWrite (led2, HIGH);
+  digitalWrite (MorseLed, HIGH);
+  digitalWrite(ControlLed, HIGH);
   delay(timeUnitLength);
-  digitalWrite (led2, LOW);
+  digitalWrite (MorseLed, LOW);
+  digitalWrite(ControlLed, LOW);
   delay(timeUnitLength);
 }
 
 void MorseDash() {
-  digitalWrite(led2, HIGH);
+  digitalWrite(MorseLed, HIGH);
+  digitalWrite(ControlLed, HIGH);
   delay(timeUnitLength*3);
-  digitalWrite(led2, LOW);
+  digitalWrite(MorseLed, LOW);
+  digitalWrite(ControlLed, LOW);
   delay(timeUnitLength);
 }
 
 void MorseEndLetter() {
-  digitalWrite(led2, LOW);
+  digitalWrite(MorseLed, LOW);
   delay(timeUnitLength*3);
 }
 
 void MorseEndWord() {
-  digitalWrite(led2, LOW);
+  digitalWrite(MorseLed, LOW);
   delay(timeUnitLength*2);
 }
 
@@ -271,10 +274,10 @@ void loop(){
   /*Reading the button
   while (digitalRead(inputPin) == HIGH) {}
     t1 = millis();                            //time at button press
-    digitalWrite(ledPin, HIGH);               //LED on while button pressed
+    digitalWrite(ControlLed, HIGH);               //LED on while button pressed
     while (digitalRead(inputPin) == LOW) {}
     t2 = millis();                            //time at button release
-    digitalWrite(ledPin, LOW);                //LED off on button release
+    digitalWrite(ControlLed, LOW);                //LED off on button release
     signal_len = t2 - t1;                     //time for which button is pressed
     if (signal_len > 50)                      //to account for switch debouncing
     {
