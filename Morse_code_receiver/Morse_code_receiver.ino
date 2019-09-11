@@ -39,7 +39,7 @@ int lightHigh = 0;
 int lightLow = 0;
 int codePtr = 0;
 int timeUnitLen;
-int previousLen;
+int previousLen = 200;
 bool notAnalysed = false; // Keep tracks of wether or not we have treated the previous "State"
 bool endOfTrans = true; // Are we still transmitting? Important to print the last letter of the transmission
 static unsigned long timer = millis();
@@ -55,7 +55,7 @@ int lightOffLen = 0;
 bool debug = false; // General debug
 bool debugSensor = false; // debug the light value threshold
 bool debugtimeUnitLen = true; // timeUnitLen debug -> Only displays when touching the potentiometer -> can leave always on
-bool debugTiming = true; // debug the morse unit rules (Some clients don't follow the normal rules and their spaces and end of word are too short!)
+bool debugTiming = false; // debug the morse unit rules (Some clients don't follow the normal rules and their spaces and end of word are too short!)
 bool debugAdv = false; // Advanced debug: prints all the decision values
 int threshold = 750; // threshold for light detection (0/1024) -> if unknown, turn debug on and look at the values over serial using debugSensor!
 //--------------------
@@ -71,13 +71,13 @@ void getMorse(){
 
     // Setting the time unit length from the potentiometer
     previousLen = timeUnitLen;
-    timeUnitLen = map(analogRead(A1),0,1023,0,250);
+    timeUnitLen = map(analogRead(A1),0,1023,0,500);
     timeUnitLen = (timeUnitLen/5 + (timeUnitLen%5>2)) * 5; // Round to closest 5
 
     // Reading the LDR light value
     val = analogRead(A0);
     if(debugSensor){ Serial.println("Value is :" + String(val)); }
-    if(debugtimeUnitLen){ if(timeUnitLen-previousLen>3) {Serial.println("timeUnitLen:" + String(timeUnitLen));} }
+    if(debugtimeUnitLen){ if(abs(timeUnitLen-previousLen)>2) {Serial.println("timeUnitLen:" + String(timeUnitLen));} }
 
     ////////////////////
   if (val >= threshold)
