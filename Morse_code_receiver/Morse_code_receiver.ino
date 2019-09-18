@@ -73,11 +73,25 @@ void getMorse(){
     previousLen = timeUnitLen;
     timeUnitLen = map(analogRead(A1),0,1023,0,500);
     timeUnitLen = (timeUnitLen/5 + (timeUnitLen%5>2)) * 5; // Round to closest 5
+    if(debugtimeUnitLen){ 
+        if(abs(timeUnitLen-previousLen)>2) {
+          Serial.println("timeUnitLen:" + String(timeUnitLen));
+          // Display of the value on the screen for ease of use.
+          lcd.clear();
+          lcd.print("Time Unit Length");
+          lcd.setCursor(0, 1);
+          lcd.print(timeUnitLen);
+          delay(500);
+          lcd.clear();          
+        } 
+    }
+    // Adjusting the time unit to 95% of it's value to avoid misreading if the sender and receiver are slighlty out of sync (Effet de bord)
+    //timeUnitLen = timeUnitLen * 0.95;
+
 
     // Reading the LDR light value
     val = analogRead(A0);
     if(debugSensor){ Serial.println("Value is :" + String(val)); }
-    if(debugtimeUnitLen){ if(abs(timeUnitLen-previousLen)>2) {Serial.println("timeUnitLen:" + String(timeUnitLen));} }
 
     ////////////////////
   if (val >= threshold)
