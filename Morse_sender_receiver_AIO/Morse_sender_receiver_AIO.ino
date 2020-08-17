@@ -321,11 +321,12 @@ void sendMorse()
 // threshold value for the photoresistor to differenciate between (light on) and (light off)
 void calibrateThreshold()
 {
-	int initValue = map(analogRead(photoResistorPin),0,1023,0,500);
+	int initValue = analogRead(photoResistorPin);
 	threshold = initValue*1.25; // Threshoold is 25% more than the current reading of light.
-	if(threshold<250){threshold = 250;}
+	if(threshold<250){threshold = 250;} // Low light tweak
 	// TODO remember max seen and lowest seen and take middle
 }
+
 
 String translate(char* i){
 
@@ -409,6 +410,27 @@ String translate(char* i){
     case 'z':
 		morseCode += "--..";
       break;
+	case '.':
+		morseCode += ".-.-.-";
+	break;
+    case '-':
+		morseCode += "-....-";
+      break;
+    case '(':
+  		morseCode += "-.--.";
+        break;
+    case ')':
+			morseCode += "-.--.-";
+	      break;
+    case '@':
+			morseCode += ".--.-.";
+	        break;
+    case '$':
+			morseCode += "...-..-";
+			break;
+    case '!':
+			morseCode += "-.-.--";
+			break;
     case '_':
 		// space -> end of word 
 		morseCode += "..--.-";
@@ -473,6 +495,7 @@ void setup()
 	pinMode(ControlLed, OUTPUT); // Onboard LED that repeats the same morse code as MorseLed
 	pinMode(MorseLed, OUTPUT); // Led that outputs the morse
 	pinMode(A1,INPUT); // photoresistor
+	
 	Serial.begin(115200);// Start a Serial Connection
 	Serial.println("-----------------------");
 	Serial.println("Sacred Heart University");
