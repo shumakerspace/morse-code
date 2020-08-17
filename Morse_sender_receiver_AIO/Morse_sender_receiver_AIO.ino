@@ -14,7 +14,7 @@
 //--------------------
 // USER SETTINGS
 //--------------------
-int timeUnitLength = 250; //Speed of the morse time unit
+int timeUnitLength = 30; //Speed of the morse time unit
 int MorseLed = 12; // Morse sender LED
 int ControlLed = 13; // Feedback LED
 int photoResistorPin = A1; // Photoresistor pin
@@ -23,9 +23,9 @@ int photoResistorPin = A1; // Photoresistor pin
 //--------------------
 // DEBUG SETTINGS
 //--------------------
-bool debug = true; // General debug
+bool debug = false; // General debug
 bool debugSensor = false; // debug the light value threshold
-bool debugtimeUnitLen = true; // timeUnitLen debug -> Only displays when touching the potentiometer -> can leave always on
+bool debugtimeUnitLen = false; // timeUnitLen debug -> Only displays when touching the potentiometer -> can leave always on
 bool debugTiming = false; // debug the morse unit rules (Some clients don't follow the normal rules and their spaces and end of word are too short!)
 bool debugAdv = false; // Advanced debug: prints all the decision values
 bool debugSender = false; // Shows the different steps of the morse sending 
@@ -41,7 +41,7 @@ LiquidCrystal_I2C lcd(0x3F,16,2);
 
 // Morse tree used for decoding
 const char MorseTree[] = {'\0','E', 'T', 'I', 'A', 'N', 'M', 'S',
-                          'U', 'R', 'W', 'D', 'K', 'D', 'O', 'H',
+                          'U', 'R', 'W', 'D', 'K', 'G', 'O', 'H',
                           'V', 'F', 'U', 'L', 'A', 'P', 'J', 'B',
                           'X', 'C', 'Y', 'Z', 'Q', '\0','\0','5',
                           '4', '\0','3', '\0','\0','\0','2', '\0',
@@ -124,7 +124,7 @@ void getMorse(){
 
     // End of Transmission + finish up the last letter
     if(!endOfTrans && ((millis()-timer)/timeUnitLength) >= 10){
-          if(debug){ Serial.println(); Serial.println("---------------- Letter found: " + String(MorseTree[codePtr]) + " ---------------------"); }
+          if(debug){ Serial.println(); Serial.println("--Letter found: " + String(MorseTree[codePtr]) + " -- Code: " + String(codePtr)); }
           Serial.print(MorseTree[codePtr]);
           lcd.print(MorseTree[codePtr]);
           codePtr = 0;
@@ -159,13 +159,13 @@ void getMorse(){
           // This is a "regular" off between on for now, we do nothing
           notAnalysed = false;
         } else if(lightOffLen >= 2 && lightOffLen < 5){
-          if(debug){ Serial.println(); Serial.println("---------------- Letter found: " + String(MorseTree[codePtr]) + " ---------------------"); }
+          if(debug){ Serial.println(); Serial.println("--Letter found: " + String(MorseTree[codePtr]) + " -- Code: " + String(codePtr)); }
           Serial.print(MorseTree[codePtr]);
           lcd.print(MorseTree[codePtr]);
           codePtr = 0;
           notAnalysed = false;
         } else if(lightOffLen >= 5 && lightOffLen < 10){
-          if(debug){ Serial.println(); Serial.println("---------------- Letter found: " + String(MorseTree[codePtr]) + " ---------------------"); }
+            if(debug){ Serial.println(); Serial.println("--Letter found: " + String(MorseTree[codePtr]) + " -- Code: " + String(codePtr)); }
           Serial.print(MorseTree[codePtr]);
           lcd.print(MorseTree[codePtr]);
           codePtr = 0;
@@ -341,7 +341,7 @@ String translate(char* i){
 		morseCode += "-.-.";
       break;
     case 'd':
-		morseCode += "--.";
+		morseCode += "-..";
       break;
     case 'e':
 		morseCode += ".";
