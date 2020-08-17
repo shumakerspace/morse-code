@@ -72,7 +72,7 @@ bool lightState = false; // state of the light
 int lightOnLen = 0;
 int lightOffLen = 0;
 int threshold = 0; //Will hold the threshold of the photoresistor to differanciate a dash from a dot.
-
+int lcdPos = 0; // Help track the lcd position to switch lines
 
 /***** from original sender part *********/
 // unsigned long signal_len,t1,t2; // For Manual morse code operations
@@ -126,7 +126,7 @@ void getMorse(){
     if(!endOfTrans && ((millis()-timer)/timeUnitLength) >= 10){
           if(debug){ Serial.println(); Serial.println("--Letter found: " + String(MorseTree[codePtr]) + " -- Code: " + String(codePtr)); }
           Serial.print(MorseTree[codePtr]);
-          lcd.print(MorseTree[codePtr]);
+          lcdPrint((char)MorseTree[codePtr]);
           codePtr = 0;
           endOfTrans = true;
           if(debug){ Serial.println(" End of Transmission"); }
@@ -161,21 +161,22 @@ void getMorse(){
         } else if(lightOffLen >= 2 && lightOffLen < 5){
           if(debug){ Serial.println(); Serial.println("--Letter found: " + String(MorseTree[codePtr]) + " -- Code: " + String(codePtr)); }
           Serial.print(MorseTree[codePtr]);
-          lcd.print(MorseTree[codePtr]);
+          lcdPrint((char)MorseTree[codePtr]);
           codePtr = 0;
           notAnalysed = false;
         } else if(lightOffLen >= 5 && lightOffLen < 10){
             if(debug){ Serial.println(); Serial.println("--Letter found: " + String(MorseTree[codePtr]) + " -- Code: " + String(codePtr)); }
           Serial.print(MorseTree[codePtr]);
-          lcd.print(MorseTree[codePtr]);
+          lcdPrint((char)MorseTree[codePtr]);
           codePtr = 0;
           notAnalysed = false;
           if(debug){ Serial.println(" End of Word "); }
-          Serial.print("#");
-          lcd.print("#");
+          Serial.print('#');
+          lcdPrint((char)'#');
         } else if(lightOffLen > 50){
           // Light was off for so long, this is a new transmission
           lcd.clear();
+		  lcdPos=0; // Tracks the position to switch to the second line
         } 
     }
 
@@ -327,6 +328,19 @@ void calibrateThreshold()
 	// TODO remember max seen and lowest seen and take middle
 }
 
+void lcdPrint(char c){
+	// Change line on the 1st character
+	if(lcdPos==0){ lcd.setCursor(0,0); }
+	// Change line on the 16th character
+	if(lcdPos==16){ lcd.setCursor(0,1); }
+	// Message too long, clear and back to first line
+	if(lcdPos==32){ lcd.clear(); lcd.setCursor(0,0); lcdPos=0; }
+
+
+	// Display the character!
+	lcd.print(c);
+	lcdPos++;
+}
 
 String translate(char* i){
 
