@@ -1,9 +1,9 @@
 /**
- * SHU Makerspace
+ * IDEA LAB (Makerspace)
  * Sacred Heart University
  * 
  * Morse code receiver
- * 
+ * Wiring is 
  * Author: Cedric Bleimling
  * Licence: CC NC SA
  */
@@ -46,26 +46,33 @@ static unsigned long timer = millis();
 bool lightState = false; // state of the light
 int lightOnLen = 0;
 int lightOffLen = 0;
+int threshold = 0; //Will hold the threshold of the photoresistor to differanciate a dash from a dot.
 
 
 
 //--------------------
-// USER SETTINGS
+// STUDENT SETTINGS
 //--------------------
 bool debug = false; // General debug
-bool debugSensor = false; // debug the light value threshold
+bool debugSensor = true; // debug the light value threshold
 bool debugtimeUnitLen = true; // timeUnitLen debug -> Only displays when touching the potentiometer -> can leave always on
 bool debugTiming = false; // debug the morse unit rules (Some clients don't follow the normal rules and their spaces and end of word are too short!)
 bool debugAdv = false; // Advanced debug: prints all the decision values
-int threshold = 750; // threshold for light detection (0/1024) -> if unknown, turn debug on and look at the values over serial using debugSensor!
+//--------------------
+
+//--------------------
+// STUDENT SETTINGS
+//--------------------
+bool debug = false; // General debug
+bool debugSensor = true; // debug the light value threshold
+bool debugtimeUnitLen = true; // timeUnitLen debug -> Only displays when touching the potentiometer -> can leave always on
+bool debugTiming = false; // debug the morse unit rules (Some clients don't follow the normal rules and their spaces and end of word are too short!)
+bool debugAdv = false; // Advanced debug: prints all the decision values
 //--------------------
 
 
-
-
-
-
-
+////////////////////////////////////////////////////////////////////////////////////////////////////////////
+/* Read below at your own risk */
 
 void getMorse(){    
 
@@ -91,7 +98,7 @@ void getMorse(){
 
     // Reading the LDR light value
     val = analogRead(A0);
-    if(debugSensor){ Serial.println("Value is :" + String(val)); }
+    if(debugSensor){ Serial.println("Value is :" + String(val) + " - Threshold: " + threshold); }
 
     ////////////////////
   if (val >= threshold)
@@ -185,19 +192,28 @@ void getMorse(){
 }
 
 
-void setup()
+// threshold value for the photoresistor to differenciate between (light on) and (light off)
+void calibrateThreshold()
 {
- 
+	int initValue = map(analogRead(A1),0,1023,0,500);
+	threshold = initValue*1.25; // Threshoold is 25% more than the current reading of light.
+}
+
+
+void setup()
+{ 
   pinMode(13,OUTPUT); // debug led
-  Serial.begin(9600);// Start a Serial Connection
-  Serial.println("SHU Makerspace");
-  Serial.println("Morse Receiver");
+  pinMode(A1,INPUT); // photoresistor
+  Serial.begin(115200);// Start a Serial Connection
   Serial.println("-----------------------");
   Serial.println("Sacred Heart University");
+  Serial.println("------ IDEA Lab -------");
+  Serial.println("-----------------------");
+  Serial.println("- Morse Code Receiver -");
   Serial.println("-----------------------");
   Serial.println("");
   delay(50);
-  
+   
     // set up the LCD's number of columns and rows:
   Wire.begin();
   lcd.begin(16,2);
@@ -209,6 +225,10 @@ void setup()
   lcd.print("Morse Receiver");
   delay(2000);
   lcd.clear();
+  
+  // Auto calibrate the photoresistor to ambiant lighting:
+  calibrateThreshold();
+  
 }
 
 void loop()
