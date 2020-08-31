@@ -8,9 +8,6 @@
  * Licence: CC NC SA
  */
 
-// TODO Stop using Strings everywhere and switch to cstrings!
-// If the arduino freezes it might be because of too much memory gruyere fron the String usage
-
 //--------------------
 // USER SETTINGS
 //--------------------
@@ -510,7 +507,7 @@ void setup()
 	pinMode(MorseLed, OUTPUT); // Led that outputs the morse
 	pinMode(A1,INPUT); // photoresistor
 	
-	Serial.begin(115200);// Start a Serial Connection
+	Serial.begin(9600);// Start a Serial Connection
 	Serial.println("-----------------------");
 	Serial.println("Sacred Heart University");
 	Serial.println("------ IDEA Lab -------");
@@ -544,3 +541,6 @@ void loop()
 	// Reads the incoming morse code thru the photoresistor
 	getMorse();
 }
+
+// TODO Stop using Strings everywhere and switch to cstrings!
+// If the arduino freezes it might be because of too much memory gruyere fron the String usage
