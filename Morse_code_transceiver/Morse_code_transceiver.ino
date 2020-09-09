@@ -2,7 +2,7 @@
  * IDEA LAB (Makerspace)
  * Sacred Heart University
  * 
- * Morse code sender and receiver
+ * Morse code transceiver
  * 
  * Author: Cedric Bleimling
  * Licence: CC NC SA
@@ -11,7 +11,7 @@
 //--------------------
 // USER SETTINGS
 //--------------------
-int timeUnitLength = 30; //Speed of the morse time unit
+int timeUnitLength = 190; //Speed of the morse time unit
 int MorseLed = 12; // Morse sender LED
 int ControlLed = 13; // Feedback LED
 int photoResistorPin = A1; // Photoresistor pin
@@ -26,6 +26,7 @@ bool debugtimeUnitLen = false; // timeUnitLen debug -> Only displays when touchi
 bool debugTiming = false; // debug the morse unit rules (Some clients don't follow the normal rules and their spaces and end of word are too short!)
 bool debugAdv = false; // Advanced debug: prints all the decision values
 bool debugSender = false; // Shows the different steps of the morse sending 
+bool debugPlotter = false; // Plotter to facilitate the understanding of thresholds. To see it, open the serial plotter in your arduino IDE.
 //--------------------
 
 ////////////////////////////////////////////////////////////////////////////////////////////////////////////
@@ -34,7 +35,7 @@ bool debugSender = false; // Shows the different steps of the morse sending
 
 // Initialisation of the LCD
 #include <LiquidCrystal_I2C.h>
-LiquidCrystal_I2C lcd(0x3F,16,2);
+LiquidCrystal_I2C lcd(0x27,16,2);
 
 // Morse tree used for decoding
 const char MorseTree[] = {'\0','E', 'T', 'I', 'A', 'N', 'M', 'S',
@@ -499,7 +500,21 @@ void convertor()
 }
 
 
+void thresholdPlotter()
+{
+  int y1 = analogRead(photoResistorPin);
+  int y2 = threshold;
+  int y3 = 0; // by default we assume the information is 0
+  if(y1>y2){y3=1024;} // if value > threshold, we switch it to 1
 
+  Serial.print(y1);
+  Serial.print(" "); // a space ' ' or  tab '\t' character is printed between the two values.
+  Serial.print(y2);
+  Serial.print(" "); // a space ' ' or  tab '\t' character is printed between the two values.
+  Serial.println(y3);
+
+  delay(100);
+}
 
 void setup()
 { 
@@ -535,12 +550,18 @@ void setup()
 
 void loop()
 {  
-	// will send morse thru the MorseLed based on Serial input.
-	sendMorse();
-   
-	// Reads the incoming morse code thru the photoresistor
-	getMorse();
+  // If we activate the serial plotter, we deactivate everything else 
+  // TODO only deactivate any other serial communication!
+  if(debugPlotter){
+    thresholdPlotter();
+  }else{
+    // will send morse thru the MorseLed based on Serial input.
+    sendMorse();
+     
+    // Reads the incoming morse code thru the photoresistor
+    getMorse();
+  }
 }
 
 // TODO Stop using Strings everywhere and switch to cstrings!
-// If the arduino freezes it might be because of too much memory gruyere fron the String usage
+// If the arduino freezes it might be because of too much memory gruyere from the String usage
