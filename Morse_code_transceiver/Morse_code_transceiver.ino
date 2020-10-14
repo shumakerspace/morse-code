@@ -15,6 +15,7 @@ int timeUnitLength = 190; //Speed of the morse time unit
 int MorseLed = 12; // Morse sender LED
 int ControlLed = 13; // Feedback LED
 int photoResistorPin = A1; // Photoresistor pin
+int lcdAdress = 0x27; // LCD I2C Address (labelled in the back of the screen)
 //--------------------
 
 //--------------------
@@ -35,7 +36,7 @@ bool debugPlotter = false; // Plotter to facilitate the understanding of thresho
 
 // Initialisation of the LCD
 #include <LiquidCrystal_I2C.h>
-LiquidCrystal_I2C lcd(0x27,16,2);
+LiquidCrystal_I2C lcd(lcdAdress,16,2);
 
 // Morse tree used for decoding
 const char MorseTree[] = {'\0','E', 'T', 'I', 'A', 'N', 'M', 'S',
