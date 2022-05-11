@@ -1,34 +1,27 @@
-unsigned long signal_len,t1,t2;
-String mCode = "";
-byte mCodeLength = 0;
-char i;String code = "";
-
 
 /******** USER SETTINGS ***********/
 int timeUnitLength = 300; //Speed of the morse time unit
-int inputPin = 2; // Input pin for the button (optional)
 int MorseLed = 12; // Morse sender LED
 int ControlLed = 13; // Feedback LED
+/**********************************/
 
-
+char inputChar; // Stores the message typed by the user in the serial monitor
 
 void setup() {
-  pinMode(inputPin, INPUT_PULLUP);
   pinMode(ControlLed, OUTPUT);
   pinMode(MorseLed, OUTPUT);
 
   Serial.begin(9600);
-  Serial.println("SHU Makerspace");
   Serial.println("Morse Sender");
   Serial.println("-----------------------");
   Serial.println("Sacred Heart University");
   Serial.println("-----------------------");
-  Serial.println("");
-  delay(50);
-  
-
+  Serial.println("");  
 }
 
+// Turns the led on "one dot".
+// The unit of time is based on the general speed -> see timeUnitLength
+// One dot is one "time" on -> one "time" off
 void MorseDot(){
   digitalWrite (MorseLed, HIGH);
   digitalWrite(ControlLed, HIGH);
@@ -38,6 +31,9 @@ void MorseDot(){
   delay(timeUnitLength);
 }
 
+// Turns the led on "one dash".
+// The unit of time is based on the general speed -> see timeUnitLength
+// One dash is three "time" on -> one "time" off
 void MorseDash() {
   digitalWrite(MorseLed, HIGH);
   digitalWrite(ControlLed, HIGH);
@@ -47,20 +43,30 @@ void MorseDash() {
   delay(timeUnitLength);
 }
 
+
+// Indicates the end of morse code for that letter
+// The unit of time is based on the general speed -> see timeUnitLength
+// It leaves the led off for 3 "time" units
 void MorseEndLetter() {
   digitalWrite(MorseLed, LOW);
   delay(timeUnitLength*3);
 }
 
+// Indicates the end of that word (adds a space!)
+// The unit of time is based on the general speed -> see timeUnitLength
+// CAREFUL: the number of "time" units seems to vary, here it is 7.
 void MorseEndWord() {
   digitalWrite(MorseLed, LOW);
-  delay(timeUnitLength*2);
+  delay(timeUnitLength*7);
 }
 
+// Translates the character received into the equivalent morse sequence.
+// Ex: "a" becomes ".-"
 void translate(){
 
-  // Take the passed character and use a switch case to find the morse code for that character
-  switch(i) {
+  // transforms upper case in lower case as upper doesn't exist in morse code.
+  //inputChar = tolower(inputChar);
+  switch(inputChar) {
     case 'a': 
       MorseDot();
       MorseDash();
@@ -195,101 +201,91 @@ void translate(){
       MorseDot();
       MorseDot();
       break;
-    case '_':
+    case '1':
+      MorseDot();
+      MorseDash();
+      MorseDash();
+      MorseDash();
+      MorseDash();
+    case '2':
+      MorseDot();
+      MorseDot();
+      MorseDash();
+      MorseDash();
+      MorseDash();
+    case '3':
+      MorseDot();
+      MorseDot();
+      MorseDot();
+      MorseDash();
+      MorseDash();
+    case '4':
+      MorseDot();
+      MorseDot();
+      MorseDot();
+      MorseDot();
+      MorseDash();
+    case '5':
+      MorseDot();
+      MorseDot();
+      MorseDot();
+      MorseDot();
+      MorseDot();
+    case '6':
+      MorseDash();
+      MorseDot();
+      MorseDot();
+      MorseDot();
+      MorseDot();
+    case '7':
+      MorseDash();
+      MorseDash();
+      MorseDot();
+      MorseDot();
+      MorseDot();
+    case '8':
+      MorseDash();
+      MorseDash();
+      MorseDash();
+      MorseDot();
+      MorseDot();
+    case '9':
+      MorseDash();
+      MorseDash();
+      MorseDash();
+      MorseDash();
+      MorseDot();
+    case '0':
+      MorseDash();
+      MorseDash();
+      MorseDash();
+      MorseDash();
+      MorseDash();
+    case ' ':
       // Space - We wait 7 time units
       MorseEndWord();
     default:
-      //delay(250);
+      Serial.print('This character is unsuported:');
+      Serial.println(inputChar);
     break;        
   }
-  MorseEndLetter();
+  // When we are done dealing with any character
+  // we need to signal the letter ending. (3 times units off in morse code)
+  // Why? How do we make the difference between "--"->"m" and "---"->"o" VS "-----"->"0"
+  MorseEndLetter(); 
 }
 
-void doString(){
-  mCodeLength = mCode.length();
-  for(int x = 0; x <= mCodeLength;x++){
-    i = mCode.charAt(x);
-    translate();
-  }
-}
-
-char readio()
-{
-  if (signal_len < 500 && signal_len > 50)
-  {
-    return '.';                        //if button press less than 0.6sec, it is a dot
-  }
-  else if (signal_len > 500)
-  {
-    return '-';                        //if button press more than 0.6sec, it is a dash
-  }
-}
-
-void convertor()
-{
-  static String letters[] = {".-", "-...", "-.-.", "-..", ".", "..-.", "--.", "....", "..", ".---", "-.-", ".-..", "--", "-.", "---", ".--.", "--.-",
-                             ".-.", "...", "-", "..-", "...-", ".--", "-..-", "-.--", "--..", "E"
-                            };
-  int i = 0;
-  if (code == ".-.-.-")
-  {
-    Serial.print(".");        //for break
-  }
-  else
-  {
-    while (letters[i] != "E")  //loop for comparing input code with letters array
-    {
-      if (letters[i] == code)
-      {
-        Serial.print(char('A' + i));
-        break;
-      }
-      i++;
-    }
-    if (letters[i] == "E")
-    {
-      Serial.println("");  //if input code doesn't match any letter, error
-    }
-  }
-  code = "";                            //reset code to blank string
-}
 void loop(){
 
     // When Serial message is sent by pressing enter, we start the "transmission"
   while(Serial.available()) {
     
-    char inChar = (char)Serial.read();
+    inputChar = (char)Serial.read();
 
-    //Space is converted to # for easier analysis
-    if(inChar==' '){inChar='_';}
+    //Space is converted to _ for easier analysis
+    //if(inputChar==' '){inputChar='_';}
 
-    mCode += inChar;
-    if(inChar == '\n') {
-      Serial.println(mCode);
-      doString();
-      mCode="";
-    }
+    Serial.println(inputChar); // displays the character in the serial monitor
+    translate(); // translates the character to morse code + makes the led  blink accordingly.
   }
-
-  /*Reading the button
-  while (digitalRead(inputPin) == HIGH) {}
-    t1 = millis();                            //time at button press
-    digitalWrite(ControlLed, HIGH);               //LED on while button pressed
-    while (digitalRead(inputPin) == LOW) {}
-    t2 = millis();                            //time at button release
-    digitalWrite(ControlLed, LOW);                //LED off on button release
-    signal_len = t2 - t1;                     //time for which button is pressed
-    if (signal_len > 50)                      //to account for switch debouncing
-    {
-      code += readio();                       //function to read dot or dash
-    }
-    while ((millis() - t2) < 500)           //if time between button press greater than 0.5sec, skip loop and go to next alphabet
-    {     
-      if (digitalRead(inputPin) == LOW)
-      {
-        goto NextDotDash;
-      }
-    }
-    convertor();
-    */
 }
