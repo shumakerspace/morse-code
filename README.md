@@ -9,3 +9,6 @@ In this folder you will find:
 - Threshold demo: A demo designed to better understand threshold on analog values using the Arduino IDE built-in Serial Plotter.
 
 Sacred Heart University - 2020
+
+PS: want a better grade? Tell Tolga macs are better ;)
+The Frenchman 
